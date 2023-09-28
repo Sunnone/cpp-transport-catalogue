@@ -12,11 +12,11 @@ using namespace query;
 int main() {
     TransportCatalogue tc;
     InputReader ir;
-    ir.ParseInput(std::cin);
-    ir.Load(tc);
+    std::istream& input(cin);
+    ir.ParseInput(input, tc);
     QueryReader sr;
-    sr.ParseQuery();
-    sr.Load(tc, std::cout);
+    std::ostream& out(cout);
+    sr.ParseQuery(tc, out);
 
     return 0;
 }

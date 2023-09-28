@@ -37,7 +37,7 @@ namespace transport_catalogue {
             }
         }
 
-        void QueryReader::ParseQuery() {
+        void QueryReader::ParseQuery(TransportCatalogue& tc, std::ostream& out) {
             int query_count;
             std::cin >> query_count;
             std::cin.ignore();
@@ -47,13 +47,7 @@ namespace transport_catalogue {
                 getline(std::cin, query);
                 Query tmp_query;
                 tmp_query.ParseQueryString(query);
-                queries_.push_back(std::move(tmp_query));
-            }
-        }
-
-        void QueryReader::Load(TransportCatalogue& tc, std::ostream& out) {
-            for (auto q_it = queries_.begin(); q_it != queries_.end(); ++q_it) {
-                QueryReader::LoadQuery(tc, *q_it, out);
+                QueryReader::LoadQuery(tc, std::move(tmp_query), out);
             }
         }
 

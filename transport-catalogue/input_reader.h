@@ -48,7 +48,7 @@ namespace transport_catalogue {
             void Load(TransportCatalogue& tc);
             void LoadCommand(TransportCatalogue& tc, Command com, bool);
 
-            void ParseInput(std::istream& in);
+            void ParseInput(std::istream& in, TransportCatalogue& tc);
 
         private:
             std::vector<Command> commands_;

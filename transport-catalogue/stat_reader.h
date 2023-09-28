@@ -30,13 +30,10 @@ namespace transport_catalogue {
 
         class QueryReader {
         public:
-            void Load(TransportCatalogue& tc, std::ostream& out);
             void LoadQuery(TransportCatalogue& tc, Query query, std::ostream& out);
 
-            void ParseQuery();
+            void ParseQuery(TransportCatalogue& tc, std::ostream& out);
 
-        private:
-            std::vector<Query> queries_;
         };
 
     } //namespace query

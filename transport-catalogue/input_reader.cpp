@@ -113,20 +113,26 @@ namespace transport_catalogue {
             }
         }
 
-        void InputReader::ParseInput(std::istream& in) {
-            int query_count;
-            in >> query_count;
-            in.ignore();
-            std::string command;
+       
 
-            for (int i = 0; i < query_count; ++i) {
-                getline(in, command);
-                Command tmp_command;
-                tmp_command.ParseCommandString(command);
-                commands_.push_back(std::move(tmp_command));
+        void InputReader::ParseInput(std::istream& in, TransportCatalogue& tc) {
+            {
+                int query_count;
+                in >> query_count;
+                in.ignore();
+                std::string command;
+
+                for (int i = 0; i < query_count; ++i) {
+                    getline(in, command);
+                    Command tmp_command;
+                    tmp_command.ParseCommandString(command);
+                    commands_.push_back(std::move(tmp_command));
+                }
             }
+            InputReader::Load(tc);
         }
-
+        
+        
         void InputReader::Load(TransportCatalogue& tc) {
             auto it_stops = std::partition(commands_.begin(), commands_.end(), [](Command com) {
                 return (com.type == InputType::StopX);
@@ -141,6 +147,7 @@ namespace transport_catalogue {
                 InputReader::LoadCommand(tc, *com_it, 0);
             }
         }
+
 
         void InputReader::LoadCommand(TransportCatalogue& tc, Command com, bool dist) {
             switch (com.type) {
