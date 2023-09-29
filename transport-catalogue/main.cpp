@@ -1,22 +1,25 @@
-#include "input_reader.h"
-#include "stat_reader.h"
-#include "transport_catalogue.h"
-
-#include <iostream>
+#include "json_reader.h"
+#include "map_renderer.h"
+#include "request_handler.h"
 
 using namespace std;
 using namespace transport_catalogue;
-using namespace input;
-using namespace query;
+using namespace map_renderer;
+using namespace request_handler;
+using namespace transport_catalogue::detail::json;
 
 int main() {
-    TransportCatalogue tc;
-    InputReader ir;
-    std::istream& input(cin);
-    ir.ParseInput(input, tc);
-    QueryReader sr;
-    std::ostream& out(cout);
-    sr.ParseQuery(tc, out);
+    vector<StatRequest> stat_request;
+    RenderSettings render_settings;
+    TransportCatalogue catalogue;
 
-    return 0;
+    JSONReader json_reader;
+    RequestHandler request_handler;
+
+    json_reader = JSONReader(cin);
+    json_reader.parse(catalogue, stat_request, render_settings);
+
+    request_handler = RequestHandler();
+    request_handler.execute_queries(catalogue, stat_request, render_settings);
+    transport_catalogue::detail::json::print(request_handler.get_document(), cout);
 }
