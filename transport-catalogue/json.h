@@ -1,88 +1,108 @@
-#pragma once
-
-#include <iostream>
-#include <map>
-#include <string>
-#include <vector>
-#include <variant>
-
-namespace transport_catalogue {
-    namespace detail {
-        namespace json {
-
-            class Node;
-
-            using Dict = std::map<std::string, Node>;
-            using Array = std::vector<Node>;
-
-            class ParsingError : public std::runtime_error {
-            public:
-                using runtime_error::runtime_error;
-            };
-
-            class Node {
-            public:
-
-                using Value = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
-
-                Node() = default;
-                Node(bool value);
-                Node(Array array);
-                Node(Dict map);
-                Node(int value);
-                Node(std::string value);
-                Node(std::nullptr_t);
-                Node(double value);
-
-                const Array& as_array() const;
-                const Dict& as_map() const;
-                int as_int() const;
-                double as_double() const;
-                bool as_bool() const;
-                const std::string& as_string() const;
-
-                bool is_null() const;
-                bool is_int() const;
-                bool is_double() const;
-                bool is_real_double() const;
-                bool is_bool() const;
-                bool is_string() const;
-                bool is_array() const;
-                bool is_map() const;
-
-                const Value& get_value() const;
-
-            private:
-                Value value_;
-            };
-
-            inline bool operator==(const Node& lhs, const Node& rhs) {
-                return lhs.get_value() == rhs.get_value();
-            }
-            inline bool operator!=(const Node& lhs, const Node& rhs) {
-                return !(lhs == rhs);
-            }
-
-            class Document {
-            public:
-                Document() = default;
-                explicit Document(Node root);
-                const Node& get_root() const;
-
-            private:
-                Node root_;
-            };
-
-            inline bool operator==(const Document& lhs, const Document& rhs) {
-                return lhs.get_root() == rhs.get_root();
-            }
-            inline bool operator!=(const Document& lhs, const Document& rhs) {
-                return !(lhs == rhs);
-            }
-
-            Document load(std::istream& input);
-            void print(const Document& document, std::ostream& output);
-
-        }//end namespace json
-    }//end namespace detail
-}//end namespace transport_catalogue
+#pragma once 
+ 
+#include <iostream> 
+#include <map> 
+#include <string> 
+#include <variant> 
+#include <vector> 
+ 
+namespace json { 
+ 
+class Node; 
+using Array = std::vector<Node>; 
+using Dict = std::map<std::string, Node>; 
+ 
+// Эта ошибка должна выбрасываться при ошибках парсинга JSON 
+class ParsingError : public std::runtime_error { 
+public: 
+    using runtime_error::runtime_error; 
+}; 
+ 
+namespace loader { 
+     
+std::string Load(std::istream& input);  
+Node LoadNull(std::istream& input); 
+Node LoadBool(std::istream& input); 
+Node LoadNumber(std::istream& input); 
+std::string LoadString(std::istream& input); 
+Node LoadArray(std::istream& input);     
+Node LoadDict(std::istream& input); 
+Node LoadNode(std::istream& input); 
+ 
+}  // namespace loader 
+ 
+class Node final
+    : private std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string> {
+public:
+    using variant::variant;
+    using Value = variant;
+     
+    bool IsNull() const; 
+    bool IsBool() const; 
+    bool IsInt() const; 
+    bool IsDouble() const; 
+    bool IsPureDouble() const; 
+    bool IsString() const; 
+    bool IsArray() const; 
+    bool IsMap() const; 
+     
+    const Array& AsArray() const; 
+    const Dict& AsMap() const; 
+    bool AsBool() const; 
+    int AsInt() const; 
+    double AsDouble() const; 
+    const std::string& AsString() const; 
+     
+    const Value& GetValue() const; 
+ 
+    bool operator==(const Node& rhs) const; 
+    bool operator!=(const Node& rhs) const;
+}; 
+ 
+class Document { 
+public: 
+    explicit Document(Node root); 
+ 
+    const Node& GetRoot() const; 
+     
+    bool operator==(const Document& rhs) const; 
+    bool operator!=(const Document& rhs) const; 
+ 
+private: 
+    Node root_; 
+}; 
+ 
+Document Load(std::istream& input); 
+     
+namespace valueprinter { 
+     
+// Контекст вывода, хранит ссылку на поток вывода и текущий отсуп 
+struct PrintContext { 
+    std::ostream& out; 
+    int indent_step = 4; 
+    int indent = 0; 
+ 
+    void PrintIndent() const; 
+ 
+    // Возвращает новый контекст вывода с увеличенным смещением 
+    PrintContext Indented() const; 
+}; 
+     
+void PrintString(const std::string& value, std::ostream& out); 
+     
+template <typename Value> 
+void PrintValue(const Value& value, const PrintContext& context) { 
+    context.out << value; 
+} 
+void PrintValue(const std::nullptr_t&, const PrintContext& context); 
+void PrintValue(bool value, const PrintContext& context); 
+void PrintValue(const std::string& value, const PrintContext& context); 
+void PrintValue(Array nodes, const PrintContext& context);  
+void PrintValue(Dict nodes, const PrintContext& context); 
+     
+} // namespace valueprinter 
+ 
+void PrintNode(const Node& node, const valueprinter::PrintContext& context); 
+void Print(const Document& doc, std::ostream& output); 
+ 
+}  // namespace json
