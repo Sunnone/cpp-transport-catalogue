@@ -1,16 +1,18 @@
-#include "json_reader.h" 
-#include "request_handler.h" 
- 
-int main() { 
-    transport_catalogue::TransportCatalogue db; 
+#include "json_reader.h"
+#include "request_handler.h"
+
+#include <iostream>
+
+int main() {
+transport_catalogue::TransportCatalogue db; 
     JsonReader json_doc(std::cin); 
      
     json_doc.FillCatalogue(db); 
      
     const auto& stat_requests = json_doc.GetStatRequests(); 
-    const auto& render_settings = json_doc.GetRenderSettings().AsMap(); 
+    const auto& render_settings = json_doc.GetRenderSettings().AsDict(); 
     const auto& renderer = json_doc.FillRenderSettings(render_settings); 
  
     RequestHandler rh(db, renderer); 
-    json_doc.ProcessRequests(stat_requests, rh, std::cout); 
+    json_doc.ProcessRequests(stat_requests, rh, std::cout);
 }

@@ -29,7 +29,6 @@ struct Bus {
     std::vector<StopPtr> stops; 
     RouteType type = Straight; 
 }; 
-     
 using BusPtr = const Bus*; 
  
 struct BusStat { 

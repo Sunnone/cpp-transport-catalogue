@@ -1,5 +1,5 @@
-#include "transport_catalogue.h" 
- 
+#include "transport_catalogue.h"
+
 namespace transport_catalogue { 
  
 void TransportCatalogue::AddStop(std::string_view stop_name, const geo::Coordinates coordinates) { 
@@ -21,8 +21,8 @@ void TransportCatalogue::AddRoute(std::string_view bus_name, const std::vector<S
             } 
         } 
     } 
-} 
- 
+}
+
 BusPtr TransportCatalogue::GetRoute(const std::string_view& bus_name) const { 
     if (busname_to_bus_.count(bus_name)) { 
         return busname_to_bus_.at(bus_name); 
@@ -35,8 +35,8 @@ StopPtr TransportCatalogue::GetStop(const std::string_view& stop_name) const {
         return stopname_to_stop_.at(stop_name); 
     } 
     return nullptr; 
-} 
- 
+}
+
 void TransportCatalogue::SetStopDistance(StopPtr from, StopPtr to, const int distance) { 
     stops_distances_[{from, to}] = distance; 
 } 
@@ -88,13 +88,13 @@ std::optional<BusStat> TransportCatalogue::GetRouteStatistics(const std::string_
  
     return statistics;
 }
- 
+    
 const std::map<std::string_view, BusPtr> TransportCatalogue::SortBuses() const { 
     std::map<std::string_view, BusPtr> result; 
     for (const auto& bus : busname_to_bus_) { 
         result.emplace(bus); 
     } 
     return result; 
-} 
- 
+}
+
 } // namespace transport_catalogue
